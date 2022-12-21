@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteOpenHelper
 import com.practice.mynewfunc.Constant
 import com.practice.mynewfunc.sqlite_func.model.Student
 
-
 class DatabaseHandler(context: Context) :
     SQLiteOpenHelper(context, Constant.DATABASE_NAME, null, Constant.DATABASE_VERSION) {
 
