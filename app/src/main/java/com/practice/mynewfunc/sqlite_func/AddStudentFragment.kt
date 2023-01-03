@@ -1,17 +1,18 @@
 package com.practice.mynewfunc.sqlite_func
 
+import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
+import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.practice.mynewfunc.basecontent.BaseFragment
 import com.practice.mynewfunc.databinding.FragmentAddStudentBinding
 import com.practice.mynewfunc.sqlite_func.databases_sqlite.DatabaseHandler
 import com.practice.mynewfunc.sqlite_func.model.Student
+import com.practice.mynewfunc.ultis.Logger
 
 class AddStudentFragment : BaseFragment(), View.OnClickListener {
 
@@ -39,19 +40,21 @@ class AddStudentFragment : BaseFragment(), View.OnClickListener {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentAddStudentBinding.inflate(inflater, container, false)
+       // mViewModel.getListStudent()
+        Logger.d("Value demo: ${mViewModel.valueDemo}")
         initActions()
 //        mViewModel = ViewModelProvider(this)[AddStudentViewModel::class.java]
-//        mViewModel.getListStudent()
-        /*mViewModel.listStudent.observe(viewLifecycleOwner) {
+        mViewModel.getListStudent()
+        mViewModel.listStudent.observe(viewLifecycleOwner) {student ->
             binding.rcvStudent.adapter = studentAdapter
-            studentAdapter.addDataToRecyclerView(it)
+            student?.let { studentAdapter.addDataToRecyclerView(it) }
             val layoutManager = GridLayoutManager(requireActivity(), 1)
             binding.rcvStudent.layoutManager = layoutManager
-        }*/
-        binding.rcvStudent.adapter = studentAdapter
+        }
+        /*binding.rcvStudent.adapter = studentAdapter
         getListStudent()?.let { studentAdapter.addDataToRecyclerView(it) }
         val layoutManager = GridLayoutManager(requireActivity(), 1)
-        binding.rcvStudent.layoutManager = layoutManager
+        binding.rcvStudent.layoutManager = layoutManager*/
         return binding.root
     }
 
@@ -59,7 +62,7 @@ class AddStudentFragment : BaseFragment(), View.OnClickListener {
         binding.btnAdd.setOnClickListener(this)
     }
 
-    fun getListStudent(): List<Student>? {
+    private fun getListStudent(): List<Student>? {
        return DatabaseHandler(requireActivity()).getAllStudents()
     }
 
@@ -81,8 +84,20 @@ class AddStudentFragment : BaseFragment(), View.OnClickListener {
                 val phone = binding.edtPhone.text.toString()
                 val student = Student(0, name, address, phone)
                 DatabaseHandler(requireActivity()).addStudent(student)
+                mViewModel.getListStudent()
             }
         }
+    }
+
+    fun hideKeyboard(activity: Activity) {
+        val imm = activity.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        //Find the currently focused view, so we can grab the correct window token from it.
+        var view = activity.currentFocus
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = View(activity)
+        }
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
 }
